@@ -1,8 +1,8 @@
 // Practitioner management routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requirePractitioner, requireAdmin, requireOwnership } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validatePractitionerRegistration,
   validateService,
@@ -17,7 +17,13 @@ import {
 import { generateSecureRandom } from '../utils/crypto';
 import { AppError, NotFoundError, ConflictError, ValidationError, AuthorizationError, asyncHandler } from '../middleware/errorHandler';
 
-const practitioners = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+  user?: any;
+}
+
+const practitioners = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Get all practitioners (public)
 practitioners.get('/', asyncHandler(async (c) => {
@@ -323,7 +329,7 @@ practitioners.get('/me/profile', requirePractitioner, async (c) => {
 });
 
 // Update practitioner profile
-practitioners.put('/me/profile', requirePractitioner, rateLimiter, async (c) => {
+practitioners.put('/me/profile', requirePractitioner, /* rateLimiter, */ async (c) => {
   const practitionerId = c.get('userId');
   const body = await c.req.json();
   
@@ -470,7 +476,7 @@ practitioners.get('/me/services', requirePractitioner, async (c) => {
 });
 
 // Create new service
-practitioners.post('/me/services', requirePractitioner, rateLimiter, async (c) => {
+practitioners.post('/me/services', requirePractitioner, /* rateLimiter, */ async (c) => {
   const practitionerId = c.get('userId');
   const body = await c.req.json();
   
@@ -496,7 +502,7 @@ practitioners.post('/me/services', requirePractitioner, rateLimiter, async (c) =
 });
 
 // Update service
-practitioners.put('/me/services/:serviceId', requirePractitioner, rateLimiter, async (c) => {
+practitioners.put('/me/services/:serviceId', requirePractitioner, /* rateLimiter, */ async (c) => {
   const practitionerId = c.get('userId');
   const serviceId = c.req.param('serviceId');
   const body = await c.req.json();

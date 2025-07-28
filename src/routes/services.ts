@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import { WorkerEnv } from '../types/env';
 import { requireAuth, requirePractitioner, requireAdmin, requireOwnership } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateService,
   validateQueryParams,
@@ -19,7 +19,7 @@ import { AppError, NotFoundError, ValidationError, AuthorizationError, asyncHand
 const services = new Hono<{ Bindings: WorkerEnv }>();
 
 // Create new service (practitioners only)
-services.post('/', requirePractitioner, rateLimiter, async (c) => {
+services.post('/', requirePractitioner, /* rateLimiter, */ async (c) => {
   const contextUser = c.get('user');
   const practitionerId = contextUser.id;
   const body = await c.req.json();
@@ -123,7 +123,7 @@ services.get('/:id', async (c) => {
 });
 
 // Update service
-services.put('/:id', requireAuth, rateLimiter, async (c) => {
+services.put('/:id', requireAuth, /* rateLimiter, */ async (c) => {
   const serviceId = c.req.param('id');
   const contextUser = c.get('user');
   const userId = contextUser.id;

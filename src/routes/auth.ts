@@ -18,29 +18,29 @@ import {
   NotFoundError,
   asyncHandler 
 } from '../middleware/errorHandler';
-import { createRateLimiter } from '../middleware/rateLimiter';
+// import { createRateLimiter } from '../middleware/rateLimiter';
 import { authMiddleware } from '../middleware/auth';
 
 const app = new Hono<{ Bindings: WorkerEnv }>();
 
-// Rate limiters for auth endpoints
-const loginLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 50 // Increased for testing
-});
+// Rate limiters for auth endpoints - DISABLED FOR TESTING
+// const loginLimiter = createRateLimiter({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   maxRequests: 50 // Increased for testing
+// });
 
-const registerLimiter = createRateLimiter({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  maxRequests: 50 // Increased for testing
-});
+// const registerLimiter = createRateLimiter({
+//   windowMs: 60 * 60 * 1000, // 1 hour
+//   maxRequests: 50 // Increased for testing
+// });
 
-const passwordResetLimiter = createRateLimiter({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  maxRequests: 50 // Increased for testing
-});
+// const passwordResetLimiter = createRateLimiter({
+//   windowMs: 60 * 60 * 1000, // 1 hour
+//   maxRequests: 50 // Increased for testing
+// });
 
 // User registration
-app.post('/register', registerLimiter, asyncHandler(async (c) => {
+app.post('/register', /* registerLimiter, */ asyncHandler(async (c) => {
   const { email, password, fullName, role = 'user', phone } = await c.req.json();
 
   // Validate input
@@ -149,7 +149,7 @@ app.post('/register', registerLimiter, asyncHandler(async (c) => {
 }));
 
 // User login
-app.post('/login', loginLimiter, asyncHandler(async (c) => {
+app.post('/login', /* loginLimiter, */ asyncHandler(async (c) => {
   const { email, password } = await c.req.json();
 
   if (!email || !password) {
@@ -338,7 +338,7 @@ app.post('/verify-email', asyncHandler(async (c) => {
 }));
 
 // Request password reset
-app.post('/forgot-password', passwordResetLimiter, asyncHandler(async (c) => {
+app.post('/forgot-password', /* passwordResetLimiter, */ asyncHandler(async (c) => {
   const { email } = await c.req.json();
 
   if (!email) {

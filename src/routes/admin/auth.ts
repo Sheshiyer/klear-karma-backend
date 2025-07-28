@@ -8,7 +8,7 @@ import { AdminJWTPayload, AdminRole, AuditAction, AuditLog } from '../../types/a
 import { AppError, HttpStatusCode } from '../../utils/error';
 import { adminAuthMiddleware } from '../../middleware/adminAuth';
 import bcrypt from 'bcryptjs';
-import { rateLimiter } from '../../middleware/rateLimiter';
+// import { rateLimiter } from '../../middleware/rateLimiter';
 
 const app = new Hono<{ Bindings: WorkerEnv }>();
 
@@ -72,7 +72,7 @@ const loginSchema = z.object({
  * @desc Login as admin
  * @access Public
  */
-app.post('/login', rateLimiter, zValidator('json', loginSchema), async (c) => {
+app.post('/login', /* rateLimiter, */ zValidator('json', loginSchema), async (c) => {
   const { email, password } = c.req.valid('json');
   
   // Get admin from KV

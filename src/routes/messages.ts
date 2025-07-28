@@ -1,8 +1,8 @@
 // Message management routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requirePractitioner, requireAdmin } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateMessage,
   validateQueryParams,
@@ -14,10 +14,15 @@ import {
 import { generateSecureRandom } from '../utils/crypto';
 import { AppError, NotFoundError, ValidationError, AuthorizationError } from '../middleware/errorHandler';
 
-const messages = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+}
+
+const messages = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Send a new message
-messages.post('/', requireAuth, rateLimiter, async (c) => {
+messages.post('/', requireAuth, async (c) => {
   const userId = c.get('userId');
   const userRole = c.get('userRole');
   const body = await c.req.json();

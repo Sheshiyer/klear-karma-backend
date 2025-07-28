@@ -1,8 +1,9 @@
 // Appointment management routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import type { Context } from 'hono';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requirePractitioner, requireAdmin, requireOwnership } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateAppointmentBooking,
   validateQueryParams,
@@ -16,10 +17,16 @@ import {
 import { generateSecureRandom } from '../utils/crypto';
 import { AppError, NotFoundError, ConflictError, ValidationError, AuthorizationError } from '../middleware/errorHandler';
 
-const appointments = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+  practitionerId?: string;
+}
+
+const appointments = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Book new appointment
-appointments.post('/', requireAuth, rateLimiter, async (c) => {
+appointments.post('/', requireAuth, /* rateLimiter, */ async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
@@ -178,7 +185,7 @@ appointments.get('/:id', requireAuth, async (c) => {
 });
 
 // Update appointment status
-appointments.put('/:id/status', requireAuth, rateLimiter, async (c) => {
+appointments.put('/:id/status', requireAuth, /* rateLimiter, */ async (c) => {
   const appointmentId = c.req.param('id');
   const userId = c.get('userId');
   const userRole = c.get('userRole');
@@ -255,7 +262,7 @@ appointments.put('/:id/status', requireAuth, rateLimiter, async (c) => {
 });
 
 // Reschedule appointment
-appointments.put('/:id/reschedule', requireAuth, rateLimiter, async (c) => {
+appointments.put('/:id/reschedule', requireAuth, /* rateLimiter, */ async (c) => {
   const appointmentId = c.req.param('id');
   const userId = c.get('userId');
   const userRole = c.get('userRole');

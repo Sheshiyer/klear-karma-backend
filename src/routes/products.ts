@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import { WorkerEnv } from '../types/env';
 import { requireAuth, requirePractitioner, requireOwnership } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateRequired,
   sanitizeString,

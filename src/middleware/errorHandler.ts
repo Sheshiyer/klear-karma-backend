@@ -118,7 +118,7 @@ export const errorHandler: ErrorHandler = (err, c) => {
     ...(details && { details })
   };
 
-  return c.json(errorResponse, statusCode);
+  return c.json(errorResponse, statusCode as any);
 };
 
 // Helper function to throw errors
@@ -127,8 +127,10 @@ export const throwError = (message: string, statusCode: number = 500, code?: str
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
-  return async (c: any, next?: Function) => {
+import type { Context, Next } from 'hono';
+
+export const asyncHandler = <T = any>(fn: (c: Context<{ Bindings: WorkerEnv }>, next?: Next) => Promise<T>) => {
+  return async (c: Context<{ Bindings: WorkerEnv }>, next?: Next) => {
     try {
       return await fn(c, next);
     } catch (error) {

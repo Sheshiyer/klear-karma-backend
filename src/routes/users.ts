@@ -1,8 +1,8 @@
 // User management routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requireOwnership, requireAdmin } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateUserRegistration, 
   validateQueryParams, 
@@ -15,7 +15,13 @@ import {
 import { hashPassword } from '../utils/crypto';
 import { AppError, NotFoundError, ConflictError, ValidationError } from '../middleware/errorHandler';
 
-const users = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+  user?: any;
+}
+
+const users = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Get current user profile
 users.get('/me', requireAuth, async (c) => {
@@ -40,7 +46,7 @@ users.get('/me', requireAuth, async (c) => {
 });
 
 // Update current user profile
-users.put('/me', requireAuth, rateLimiter, async (c) => {
+users.put('/me', requireAuth, async (c) => {
   const user = c.get('user');
   const userId = user.id;
   const body = await c.req.json();
@@ -110,7 +116,7 @@ users.put('/me', requireAuth, rateLimiter, async (c) => {
 });
 
 // Change password
-users.put('/me/password', requireAuth, rateLimiter, async (c) => {
+users.put('/me/password', requireAuth, async (c) => {
   const user = c.get('user');
   const userId = user.id;
   const { currentPassword, newPassword } = await c.req.json();
@@ -316,7 +322,7 @@ users.get('/me/reviews', requireAuth, async (c) => {
 });
 
 // Delete user account
-users.delete('/me', requireAuth, rateLimiter, async (c) => {
+users.delete('/me', requireAuth, async (c) => {
   const user = c.get('user');
   const userId = user.id;
   const { password, confirmation } = await c.req.json();

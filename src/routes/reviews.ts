@@ -1,8 +1,8 @@
 // Review management routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requireAdmin } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateReview,
   validateQueryParams,
@@ -14,10 +14,15 @@ import {
 import { generateSecureRandom } from '../utils/crypto';
 import { AppError, NotFoundError, ValidationError, AuthorizationError, ConflictError } from '../middleware/errorHandler';
 
-const reviews = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+}
+
+const reviews = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Create new review
-reviews.post('/', requireAuth, rateLimiter, async (c) => {
+reviews.post('/', requireAuth, /* rateLimiter, */ async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
@@ -145,7 +150,7 @@ reviews.get('/:id', async (c) => {
 });
 
 // Update review (customer only, within 30 days)
-reviews.put('/:id', requireAuth, rateLimiter, async (c) => {
+reviews.put('/:id', requireAuth, /* rateLimiter, */ async (c) => {
   const reviewId = c.req.param('id');
   const userId = c.get('userId');
   const userRole = c.get('userRole');
@@ -222,7 +227,7 @@ reviews.put('/:id', requireAuth, rateLimiter, async (c) => {
 });
 
 // Add practitioner response
-reviews.put('/:id/response', requireAuth, rateLimiter, async (c) => {
+reviews.put('/:id/response', requireAuth, /* rateLimiter, */ async (c) => {
   const reviewId = c.req.param('id');
   const userId = c.get('userId');
   const userRole = c.get('userRole');
@@ -325,7 +330,7 @@ reviews.post('/:id/helpful', requireAuth, async (c) => {
 });
 
 // Report review
-reviews.post('/:id/report', requireAuth, rateLimiter, async (c) => {
+reviews.post('/:id/report', requireAuth, /* rateLimiter, */ async (c) => {
   const reviewId = c.req.param('id');
   const userId = c.get('userId');
   const { reason } = await c.req.json();

@@ -1,8 +1,8 @@
 // Analytics and reporting routes
 import { Hono } from 'hono';
-import { WorkerEnv, Context } from '../types/env';
+import { WorkerEnv } from '../types/env';
 import { requireAuth, requireAdmin, UserContext } from '../middleware/auth';
-import { rateLimiter } from '../middleware/rateLimiter';
+// import { rateLimiter } from '../middleware/rateLimiter';
 import { 
   validateQueryParams,
   validateRequired,
@@ -19,7 +19,13 @@ declare module 'hono' {
   }
 }
 
-const analytics = new Hono<{ Bindings: WorkerEnv; Variables: Context }>();
+interface Variables {
+  userId?: string;
+  userRole?: string;
+  practitionerId?: string;
+}
+
+const analytics = new Hono<{ Bindings: WorkerEnv; Variables: Variables }>();
 
 // Track event (internal use)
 analytics.post('/track', async (c) => {
