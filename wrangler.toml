@@ -1,0 +1,262 @@
+name = "klear-karma-backend"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Local development variables
+[vars]
+ENVIRONMENT = "development"
+API_VERSION = "v1"
+JWT_SECRET = "your-super-secret-jwt-key-for-development-change-in-production"
+CORS_ORIGIN = "http://localhost:3000,http://localhost:8080"
+ADMIN_API_KEY = "admin-key-for-development"
+BCRYPT_ROUNDS = "10"
+EMAIL_VERIFICATION_ENABLED = "false"
+PASSWORD_RESET_ENABLED = "true"
+RATE_LIMIT_ENABLED = "true"
+
+# Local KV namespaces
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "7c4fbfcb3f9345d28aa5f1b0e74f5b15"
+preview_id = "dd8d4fb082424339a8616d20c13e4b5a"
+
+[[kv_namespaces]]
+binding = "PRACTITIONERS_KV"
+id = "f5e38a938d9a4cde95dbff86c50b12fc"
+preview_id = "28247b69eb2743818fdfa92c43ce84be"
+
+[[kv_namespaces]]
+binding = "APPOINTMENTS_KV"
+id = "fd5e96a42aeb467bb015dd698e469e6a"
+preview_id = "ca96aa90432e4319b3be508d8dbf36a5"
+
+[[kv_namespaces]]
+binding = "MESSAGES_KV"
+id = "1554f75ecada4e4bbfde9d7fdeff98f6"
+preview_id = "4cc445f53a9d4931852018b8779fd41e"
+
+[[kv_namespaces]]
+binding = "REVIEWS_KV"
+id = "d6eeafd7af9a422e8856e49723791aea"
+preview_id = "ac4b60cbd76446cd92cd146ef2e498d8"
+
+[[kv_namespaces]]
+binding = "SERVICES_KV"
+id = "ccb770b8b4064639a3b5ad88919e5ff7"
+preview_id = "47157f9949db4d2cbdec0bf51c21f235"
+
+[[kv_namespaces]]
+binding = "ANALYTICS_KV"
+id = "9c11ea82b84946ee959e06876c238f17"
+preview_id = "9c11ea82b84946ee959e06876c238f17"
+
+[[kv_namespaces]]
+binding = "ADMINS_KV"
+id = "cd943c4e11824287960fd4d8aacc4d9a"
+preview_id = "cd943c4e11824287960fd4d8aacc4d9a"
+
+[[kv_namespaces]]
+binding = "SEARCH_INDEX_KV"
+id = "8d319c3f124849adb24b701418b92dc3"
+preview_id = "8d319c3f124849adb24b701418b92dc3"
+
+[[kv_namespaces]]
+binding = "PRODUCTS_KV"
+id = "8aeed37ffb054ef7897fa0ff8b93d852"
+preview_id = "3300534fa9d84ddd802eb258960b0124"
+
+[[kv_namespaces]]
+binding = "BOOKINGS_KV"
+id = "fd5e96a42aeb467bb015dd698e469e6a"
+preview_id = "ca96aa90432e4319b3be508d8dbf36a5"
+
+[[kv_namespaces]]
+binding = "AUDIT_LOGS_KV"
+id = "9c11ea82b84946ee959e06876c238f17"
+preview_id = "9c11ea82b84946ee959e06876c238f17"
+
+[env.development]
+[env.development.vars]
+ENVIRONMENT = "development"
+API_VERSION = "v1"
+JWT_SECRET = "your-super-secret-jwt-key-for-development-change-in-production"
+CORS_ORIGIN = "http://localhost:3000,http://localhost:8080,https://dev.klearkarma.life"
+ADMIN_API_KEY = "admin-key-for-development"
+BCRYPT_ROUNDS = "10"
+EMAIL_VERIFICATION_ENABLED = "false"
+PASSWORD_RESET_ENABLED = "true"
+RATE_LIMIT_ENABLED = "true"
+API_BASE_URL = "https://dev-api.klearkarma.life"
+
+[[env.development.kv_namespaces]]
+binding = "USERS_KV"
+id = "7c4fbfcb3f9345d28aa5f1b0e74f5b15"
+preview_id = "dd8d4fb082424339a8616d20c13e4b5a"
+
+[[env.development.kv_namespaces]]
+binding = "PRACTITIONERS_KV"
+id = "f5e38a938d9a4cde95dbff86c50b12fc"
+preview_id = "28247b69eb2743818fdfa92c43ce84be"
+
+[[env.development.kv_namespaces]]
+binding = "APPOINTMENTS_KV"
+id = "fd5e96a42aeb467bb015dd698e469e6a"
+preview_id = "ca96aa90432e4319b3be508d8dbf36a5"
+
+[[env.development.kv_namespaces]]
+binding = "MESSAGES_KV"
+id = "1554f75ecada4e4bbfde9d7fdeff98f6"
+preview_id = "4cc445f53a9d4931852018b8779fd41e"
+
+[[env.development.kv_namespaces]]
+binding = "REVIEWS_KV"
+id = "d6eeafd7af9a422e8856e49723791aea"
+preview_id = "ac4b60cbd76446cd92cd146ef2e498d8"
+
+[[env.development.kv_namespaces]]
+binding = "SERVICES_KV"
+id = "ccb770b8b4064639a3b5ad88919e5ff7"
+preview_id = "47157f9949db4d2cbdec0bf51c21f235"
+
+[[env.development.kv_namespaces]]
+binding = "ANALYTICS_KV"
+id = "9c11ea82b84946ee959e06876c238f17"
+preview_id = "9c11ea82b84946ee959e06876c238f17"
+
+[[env.development.kv_namespaces]]
+binding = "SEARCH_INDEX_KV"
+id = "8d319c3f124849adb24b701418b92dc3"
+preview_id = "8d319c3f124849adb24b701418b92dc3"
+
+[[env.development.kv_namespaces]]
+binding = "PRODUCTS_KV"
+id = "8aeed37ffb054ef7897fa0ff8b93d852"
+preview_id = "3300534fa9d84ddd802eb258960b0124"
+
+[[env.development.kv_namespaces]]
+binding = "ADMINS_KV"
+id = "cd943c4e11824287960fd4d8aacc4d9a"
+preview_id = "cd943c4e11824287960fd4d8aacc4d9a"
+
+[[env.development.routes]]
+pattern = "dev-api.klearkarma.life/*"
+zone_name = "klearkarma.life"
+
+[env.staging]
+[env.staging.vars]
+ENVIRONMENT = "staging"
+API_VERSION = "v1"
+JWT_SECRET = "your-staging-jwt-secret-key"
+CORS_ORIGIN = "https://staging.klearkarma.life,https://staging-app.klearkarma.life"
+ADMIN_API_KEY = "your-staging-admin-api-key"
+BCRYPT_ROUNDS = "12"
+EMAIL_VERIFICATION_ENABLED = "true"
+PASSWORD_RESET_ENABLED = "true"
+RATE_LIMIT_ENABLED = "true"
+API_BASE_URL = "https://staging-api.klearkarma.life"
+
+[[env.staging.kv_namespaces]]
+binding = "USERS_KV"
+id = "7c4fbfcb3f9345d28aa5f1b0e74f5b15"
+
+[[env.staging.kv_namespaces]]
+binding = "PRACTITIONERS_KV"
+id = "f5e38a938d9a4cde95dbff86c50b12fc"
+
+[[env.staging.kv_namespaces]]
+binding = "APPOINTMENTS_KV"
+id = "fd5e96a42aeb467bb015dd698e469e6a"
+
+[[env.staging.kv_namespaces]]
+binding = "MESSAGES_KV"
+id = "1554f75ecada4e4bbfde9d7fdeff98f6"
+
+[[env.staging.kv_namespaces]]
+binding = "REVIEWS_KV"
+id = "d6eeafd7af9a422e8856e49723791aea"
+
+[[env.staging.kv_namespaces]]
+binding = "SERVICES_KV"
+id = "ccb770b8b4064639a3b5ad88919e5ff7"
+
+[[env.staging.kv_namespaces]]
+binding = "ANALYTICS_KV"
+id = "9c11ea82b84946ee959e06876c238f17"
+
+[[env.staging.kv_namespaces]]
+binding = "PRODUCTS_KV"
+id = "8aeed37ffb054ef7897fa0ff8b93d852"
+
+[[env.staging.kv_namespaces]]
+binding = "ADMINS_KV"
+id = "cd943c4e11824287960fd4d8aacc4d9a"
+
+[[env.staging.kv_namespaces]]
+binding = "SEARCH_INDEX_KV"
+id = "8d319c3f124849adb24b701418b92dc3"
+
+[[env.staging.routes]]
+pattern = "staging-api.klearkarma.life/*"
+zone_name = "klearkarma.life"
+
+[env.production]
+[env.production.vars]
+ENVIRONMENT = "production"
+API_VERSION = "v1"
+JWT_SECRET = "your-production-jwt-secret-key"
+ADMIN_API_KEY = "your-production-admin-api-key"
+CORS_ORIGIN = "https://klearkarma.life,https://app.klearkarma.life,https://admin.klearkarma.life"
+BCRYPT_ROUNDS = "12"
+EMAIL_VERIFICATION_ENABLED = "true"
+PASSWORD_RESET_ENABLED = "true"
+RATE_LIMIT_ENABLED = "true"
+API_BASE_URL = "https://api.klearkarma.life"
+
+[[env.production.kv_namespaces]]
+binding = "USERS_KV"
+id = "44a610908c754f95aa3590ba135cff73"
+
+[[env.production.kv_namespaces]]
+binding = "PRACTITIONERS_KV"
+id = "0cff9593ef464165af34212fc37dbc20"
+
+[[env.production.kv_namespaces]]
+binding = "APPOINTMENTS_KV"
+id = "9ac28b239ad54720a89a43b42b480faa"
+
+[[env.production.kv_namespaces]]
+binding = "MESSAGES_KV"
+id = "966af2f25a0343a29dbdc9c09f8c1836"
+
+[[env.production.kv_namespaces]]
+binding = "REVIEWS_KV"
+id = "ece9c47c50014f2bac4934b116839064"
+
+[[env.production.kv_namespaces]]
+binding = "SERVICES_KV"
+id = "164a140ddd0b4f64959f34722909746f"
+
+[[env.production.kv_namespaces]]
+binding = "ANALYTICS_KV"
+id = "9c11ea82b84946ee959e06876c238f17"
+
+[[env.production.kv_namespaces]]
+binding = "PRODUCTS_KV"
+id = "4309719197524d49ae64966d006e49d6"
+
+[[env.production.kv_namespaces]]
+binding = "ADMINS_KV"
+id = "0d991afd7f8e48a1950d4dfbb51420fd"
+
+[[env.production.kv_namespaces]]
+binding = "SEARCH_INDEX_KV"
+id = "8d319c3f124849adb24b701418b92dc3"
+
+[[env.production.routes]]
+pattern = "api.klearkarma.life/*"
+zone_name = "klearkarma.life"
+
+# Production secrets should be set via wrangler secret put
+# wrangler secret put JWT_SECRET
+# wrangler secret put ADMIN_API_KEY

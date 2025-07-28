@@ -1,0 +1,1 @@
+{"success":true,"data":{"timestamp":"2025-07-26T12:01:38.214Z","status":"unhealthy","services":{"kv":"unhealthy","api":"healthy"},"metrics":{"responseTime":635,"memoryUsage":0,"requestCount":0,"errorRate":0},"storage":{"users":1,"practitioners":1,"appointments":1,"messages":1,"services":1,"reviews":1,"analytics":0}}}

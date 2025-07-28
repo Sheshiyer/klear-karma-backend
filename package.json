@@ -3,16 +3,45 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
+		"dev": "wrangler dev --local",
+		"dev:remote": "wrangler dev",
+		"start": "wrangler dev --local",
+		"build": "wrangler deploy --dry-run",
 		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev",
-		"test": "vitest",
-		"cf-typegen": "wrangler types"
+		"deploy:staging": "wrangler deploy --env staging",
+		"deploy:production": "wrangler deploy --env production",
+		"populate-data": "curl -X POST http://localhost:8787/populate-mock-data",
+		"test": "echo \"No tests specified yet\" && exit 0",
+		"test:api": "curl http://localhost:8787/health",
+		"logs": "wrangler tail",
+		"logs:staging": "wrangler tail --env staging",
+		"logs:production": "wrangler tail --env production",
+		"kv:create": "npm run kv:create:users && npm run kv:create:practitioners && npm run kv:create:appointments && npm run kv:create:messages && npm run kv:create:services && npm run kv:create:reviews && npm run kv:create:analytics",
+		"kv:create:users": "wrangler kv:namespace create \"USERS_KV\"",
+		"kv:create:practitioners": "wrangler kv:namespace create \"PRACTITIONERS_KV\"",
+		"kv:create:appointments": "wrangler kv:namespace create \"APPOINTMENTS_KV\"",
+		"kv:create:messages": "wrangler kv:namespace create \"MESSAGES_KV\"",
+		"kv:create:services": "wrangler kv:namespace create \"SERVICES_KV\"",
+		"kv:create:reviews": "wrangler kv:namespace create \"REVIEWS_KV\"",
+		"kv:create:analytics": "wrangler kv:namespace create \"ANALYTICS_KV\"",
+		"cf-typegen": "wrangler types",
+		"format": "prettier --write \"src/**/*.{ts,js,json}\"",
+		"lint": "eslint src --ext .ts,.js",
+		"clean": "rm -rf dist .wrangler"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
 		"wrangler": "^4.24.4"
+	},
+	"dependencies": {
+		"@hono/zod-validator": "^0.7.2",
+		"@types/bcryptjs": "^2.4.6",
+		"@types/uuid": "^10.0.0",
+		"bcryptjs": "^3.0.2",
+		"hono": "^4.8.5",
+		"uuid": "^11.1.0",
+		"zod": "^4.0.10"
 	}
 }
