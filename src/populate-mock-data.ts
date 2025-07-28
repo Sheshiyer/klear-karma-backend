@@ -173,39 +173,197 @@ async function generateMockProducts(env: WorkerEnv, practitioners: string[], cou
   }
 }
 
+async function generateMockAppointments(env: WorkerEnv, userIds: string[], practIds: string[], serviceIds: string[]) {
+  const statuses = ['scheduled', 'completed', 'cancelled', 'no-show'];
+  const appointmentCount = 30;
+  
+  for (let i = 0; i < appointmentCount; i++) {
+    const id = generateSecureRandom(16);
+    const userId = userIds[Math.floor(Math.random() * userIds.length)];
+    const practId = practIds[Math.floor(Math.random() * practIds.length)];
+    const serviceId = serviceIds[Math.floor(Math.random() * serviceIds.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    const appointmentDate = new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000);
+    
+    const appointment = {
+      id,
+      userId,
+      practitionerId: practId,
+      serviceId,
+      status,
+      scheduledAt: appointmentDate.toISOString(),
+      duration: [30, 45, 60, 90][Math.floor(Math.random() * 4)],
+      price: Math.floor(Math.random() * 150) + 50,
+      currency: 'USD',
+      notes: status === 'completed' ? 'Great session, very relaxing and insightful.' : '',
+      paymentStatus: status === 'completed' ? 'paid' : 'pending',
+      createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await env.APPOINTMENTS_KV.put(`appointment:${id}`, JSON.stringify(appointment));
+  }
+}
+
+async function generateMockMessages(env: WorkerEnv, userIds: string[], practIds: string[]) {
+  const messageCount = 50;
+  const conversationIds: string[] = [];
+  
+  // Create conversations
+  for (let i = 0; i < 10; i++) {
+    const conversationId = generateSecureRandom(16);
+    conversationIds.push(conversationId);
+    
+    const userId = userIds[Math.floor(Math.random() * userIds.length)];
+    const practId = practIds[Math.floor(Math.random() * practIds.length)];
+    
+    const conversation = {
+      id: conversationId,
+      participants: [userId, practId],
+      lastMessageAt: new Date().toISOString(),
+      createdAt: new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    
+    await env.MESSAGES_KV.put(`conversation:${conversationId}`, JSON.stringify(conversation));
+  }
+  
+  // Create messages
+  const sampleMessages = [
+    'Hello! I\'m interested in booking a session with you.',
+    'Thank you for your interest! I\'d be happy to help you.',
+    'What times work best for you this week?',
+    'I\'m available Tuesday or Thursday afternoon.',
+    'Perfect! Let\'s schedule for Thursday at 2 PM.',
+    'Looking forward to our session!',
+    'How should I prepare for the session?',
+    'Just come with an open mind and comfortable clothing.',
+    'Thank you for the wonderful session today!',
+    'It was my pleasure. Take care and drink plenty of water.'
+  ];
+  
+  for (let i = 0; i < messageCount; i++) {
+    const id = generateSecureRandom(16);
+    const conversationId = conversationIds[Math.floor(Math.random() * conversationIds.length)];
+    const senderId = Math.random() > 0.5 ? userIds[Math.floor(Math.random() * userIds.length)] : practIds[Math.floor(Math.random() * practIds.length)];
+    
+    const message = {
+      id,
+      conversationId,
+      senderId,
+      content: sampleMessages[Math.floor(Math.random() * sampleMessages.length)],
+      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      read: Math.random() > 0.3
+    };
+    
+    await env.MESSAGES_KV.put(`message:${id}`, JSON.stringify(message));
+  }
+}
+
+async function generateMockReviews(env: WorkerEnv, userIds: string[], practIds: string[], serviceIds: string[]) {
+  const reviewCount = 40;
+  const reviewTexts = [
+    'Amazing session! I felt so much more balanced and peaceful afterwards.',
+    'Highly recommend this practitioner. Very professional and knowledgeable.',
+    'The healing session was exactly what I needed. Thank you!',
+    'Incredible experience. I will definitely be booking again.',
+    'Very calming and restorative. Great value for money.',
+    'Professional service with genuine care for client wellbeing.',
+    'Transformative session that helped me release a lot of tension.',
+    'Wonderful practitioner with deep knowledge of their craft.',
+    'Felt immediate relief and continued benefits for days after.',
+    'Excellent session, would recommend to anyone seeking healing.'
+  ];
+  
+  for (let i = 0; i < reviewCount; i++) {
+    const id = generateSecureRandom(16);
+    const userId = userIds[Math.floor(Math.random() * userIds.length)];
+    const practId = practIds[Math.floor(Math.random() * practIds.length)];
+    const serviceId = serviceIds[Math.floor(Math.random() * serviceIds.length)];
+    
+    const review = {
+      id,
+      userId,
+      practitionerId: practId,
+      serviceId,
+      rating: Math.floor(Math.random() * 2) + 4, // 4-5 stars
+      comment: reviewTexts[Math.floor(Math.random() * reviewTexts.length)],
+      verified: Math.random() > 0.2, // 80% verified
+      helpful: Math.floor(Math.random() * 10),
+      createdAt: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await env.REVIEWS_KV.put(`review:${id}`, JSON.stringify(review));
+  }
+}
+
 // Main populate function
 export async function populateMockData(env: WorkerEnv) {
-  console.log('🚀 Starting mock data population...');
+  console.log('🚀 Starting comprehensive mock data population...');
   
   console.log('👥 Generating mock users...');
-  await generateMockUsers(env, 20);
+  await generateMockUsers(env, 25);
   
   console.log('🧘 Generating mock practitioners...');
-  await generateMockPractitioners(env, 10);
+  await generateMockPractitioners(env, 15);
   
-  // Fetch practitioner IDs from KV
-  console.log('📋 Fetching practitioner IDs...');
+  // Fetch user and practitioner IDs from KV
+  console.log('📋 Fetching user and practitioner IDs...');
+  const userList = await env.USERS_KV.list({prefix: 'user:'});
+  const userIds = userList.keys.map(k => k.name.split(':')[1]);
+  
   const practList = await env.PRACTITIONERS_KV.list({prefix: 'practitioner:'});
   const practIds = practList.keys.map(k => k.name.split(':')[1]);
-  console.log(`Found ${practIds.length} practitioners`);
+  console.log(`Found ${userIds.length} users and ${practIds.length} practitioners`);
   
-  console.log('🔮 Generating mock services with new healing categories...');
+  console.log('🔮 Generating mock services with healing categories...');
   await generateMockServices(env, practIds);
+  
+  // Fetch service IDs
+  const serviceList = await env.SERVICES_KV.list({prefix: 'service:'});
+  const serviceIds = serviceList.keys.map(k => k.name.split(':')[1]);
+  console.log(`Generated ${serviceIds.length} services`);
+  
+  console.log('📅 Generating mock appointments...');
+  if (env.APPOINTMENTS_KV) {
+    await generateMockAppointments(env, userIds, practIds, serviceIds);
+  } else {
+    console.log('⚠️ APPOINTMENTS_KV not available, skipping appointment generation');
+  }
+  
+  console.log('💬 Generating mock messages and conversations...');
+  if (env.MESSAGES_KV) {
+    await generateMockMessages(env, userIds, practIds);
+  } else {
+    console.log('⚠️ MESSAGES_KV not available, skipping message generation');
+  }
+  
+  console.log('⭐ Generating mock reviews...');
+  if (env.REVIEWS_KV) {
+    await generateMockReviews(env, userIds, practIds, serviceIds);
+  } else {
+    console.log('⚠️ REVIEWS_KV not available, skipping review generation');
+  }
   
   // Only generate products if PRODUCTS_KV is available
   if (env.PRODUCTS_KV) {
     console.log('📦 Generating mock products...');
-    await generateMockProducts(env, practIds, 50);
+    await generateMockProducts(env, practIds, 60);
   } else {
     console.log('⚠️ PRODUCTS_KV not available, skipping product generation');
   }
   
-  console.log('✅ Mock data populated successfully!');
+  console.log('✅ Comprehensive mock data populated successfully!');
   
   return {
-    users: 20,
-    practitioners: 10,
-    services: practIds.length,
-    products: env.PRODUCTS_KV ? 50 : 0
+    users: userIds.length,
+    practitioners: practIds.length,
+    services: serviceIds.length,
+    appointments: env.APPOINTMENTS_KV ? 30 : 0,
+    messages: env.MESSAGES_KV ? 50 : 0,
+    conversations: env.MESSAGES_KV ? 10 : 0,
+    reviews: env.REVIEWS_KV ? 40 : 0,
+    products: env.PRODUCTS_KV ? 60 : 0
   };
 }

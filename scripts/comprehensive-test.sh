@@ -338,9 +338,9 @@ get_first_practitioner_id
 
 run_test "List Practitioners with Pagination" "200" "/practitioners?page=1&limit=5" "GET" "" "" "true" "data success"
 run_test "Search Practitioners by Specialization" "200" "/practitioners?specialization=therapy" "GET" "" "" "true" "data success"
-run_test "Search Practitioners by Location" "200" "/practitioners?city=New+York" "GET" "" "" "true" "data success"
-run_test "Filter Available Practitioners" "200" "/practitioners?available=true" "GET" "" "" "true" "data success"
-run_test "Complex Practitioner Search" "200" "/practitioners?specialization=reiki&city=Los+Angeles&available=true&minRating=4&limit=10" "GET" "" "" "true" "data success"
+run_test "Search Practitioners by Location" "200" "/practitioners?location=New+York" "GET" "" "" "true" "data success"
+run_test "Filter Available Practitioners" "200" "/practitioners?availability=true" "GET" "" "" "true" "data success"
+run_test "Complex Practitioner Search" "200" "/practitioners?specialization=reiki&location=Los+Angeles&availability=true&minRating=4&limit=10" "GET" "" "" "true" "data success"
 
 if [ -n "$PRACTITIONER_ID" ]; then
     run_test "Get Specific Practitioner" "200" "/practitioners/$PRACTITIONER_ID" "GET" "" "" "true" "id fullName specializations"
@@ -380,11 +380,11 @@ get_first_product_id
 
 run_test "List Products with Pagination" "200" "/products?page=1&limit=10" "GET" "" "" "true" "data success"
 run_test "Search Products by Category" "200" "/products?category=books" "GET" "" "" "true" "data success"
-run_test "Filter Products by Price Range" "200" "/products?minPrice=10&maxPrice=100" "GET" "" "" "true" "data success"
+run_test "Filter Products by Price Range" "200" "/products?priceMin=10&priceMax=100" "GET" "" "" "true" "data success"
 run_test "Search Products by Name" "200" "/products?search=crystal" "GET" "" "" "true" "data success"
-run_test "Filter Verified Products Only" "200" "/products?verified=true" "GET" "" "" "true" "data success"
+run_test "Filter Verified Products Only" "200" "/products?verifiedOnly=true" "GET" "" "" "true" "data success"
 run_test "Filter Products by Modality" "200" "/products?modality=physical" "GET" "" "" "true" "data success"
-run_test "Complex Product Search" "200" "/products?category=crystals&minPrice=20&maxPrice=80&verified=true&sort=price&order=asc" "GET" "" "" "true" "data success"
+run_test "Complex Product Search" "200" "/products?category=crystals&priceMin=20&priceMax=80&verifiedOnly=true&sort=price&order=asc" "GET" "" "" "true" "data success"
 
 if [ -n "$PRODUCT_ID" ]; then
     run_test "Get Specific Product" "200" "/products/$PRODUCT_ID" "GET" "" "" "true" "id name description price"
@@ -411,7 +411,7 @@ fi
 
 # Product error tests
 run_test "Get Non-existent Product" "404" "/products/non-existent-id" "GET"
-run_test "Invalid Product Search Parameters" "400" "/products?minPrice=invalid" "GET"
+run_test "Invalid Product Search Parameters" "400" "/products?priceMin=invalid" "GET"
 
 print_section "APPOINTMENT TESTS"
 

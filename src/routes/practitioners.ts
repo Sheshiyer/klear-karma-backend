@@ -226,6 +226,99 @@ practitioners.get('/:id', async (c) => {
   });
 });
 
+// Get practitioner's services (public)
+practitioners.get('/:id/services', async (c) => {
+  const practitionerId = c.req.param('id');
+  
+  // Verify practitioner exists and is active
+  const practitioner = await c.env.PRACTITIONERS_KV.get(`practitioner:${practitionerId}`);
+  if (!practitioner) {
+    throw new NotFoundError('Practitioner not found');
+  }
+  
+  const practitionerData = JSON.parse(practitioner);
+  if (practitionerData.status !== 'active' || !practitionerData.verified) {
+    throw new NotFoundError('Practitioner not found');
+  }
+  
+  const servicesList = await c.env.SERVICES_KV.list({
+    prefix: `practitioner_services:${practitionerId}:`
+  });
+  
+  const services = [];
+  for (const key of servicesList.keys) {
+    const serviceData = await c.env.SERVICES_KV.get(key.name);
+    if (serviceData) {
+      const service = JSON.parse(serviceData);
+      if (service.isActive) {
+        services.push(service);
+      }
+    }
+  }
+  
+  return c.json({
+    success: true,
+    data: services
+  });
+});
+
+// Get practitioner's reviews (public)
+practitioners.get('/:id/reviews', async (c) => {
+  const practitionerId = c.req.param('id');
+  const { page, limit } = validateQueryParams(c.req.query());
+  
+  // Verify practitioner exists and is active
+  const practitioner = await c.env.PRACTITIONERS_KV.get(`practitioner:${practitionerId}`);
+  if (!practitioner) {
+    throw new NotFoundError('Practitioner not found');
+  }
+  
+  const practitionerData = JSON.parse(practitioner);
+  if (practitionerData.status !== 'active' || !practitionerData.verified) {
+    throw new NotFoundError('Practitioner not found');
+  }
+  
+  const reviewsList = await c.env.REVIEWS_KV.list({
+    prefix: `practitioner_reviews:${practitionerId}:`,
+    limit: 1000
+  });
+  
+  const reviews = [];
+  for (const key of reviewsList.keys) {
+    const reviewData = await c.env.REVIEWS_KV.get(key.name);
+    if (reviewData) {
+      const review = JSON.parse(reviewData);
+      // Remove sensitive user information for public view
+      if (review.user) {
+        review.user = {
+          id: review.user.id,
+          firstName: review.user.firstName,
+          lastName: review.user.lastName?.charAt(0) + '.' // Only show first letter of last name
+        };
+      }
+      reviews.push(review);
+    }
+  }
+  
+  // Sort by date (newest first)
+  reviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  
+  // Paginate
+  const startIndex = (page - 1) * limit;
+  const paginatedReviews = reviews.slice(startIndex, startIndex + limit);
+  
+  return c.json({
+    success: true,
+    data: paginatedReviews,
+    pagination: {
+      page,
+      limit,
+      total: reviews.length,
+      totalPages: Math.ceil(reviews.length / limit)
+    }
+  });
+});
+
 // Get practitioner's availability
 practitioners.get('/:id/availability', async (c) => {
   const practitionerId = c.req.param('id');

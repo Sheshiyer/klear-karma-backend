@@ -144,6 +144,64 @@ messages.post('/', requireAuth, async (c) => {
   }, 201);
 });
 
+// Get messages in a conversation
+messages.get('/conversations/:conversationId/messages', requireAuth, async (c) => {
+  const conversationId = c.req.param('conversationId');
+  const userId = c.get('userId');
+  const userRole = c.get('userRole');
+  const { page, limit } = validateQueryParams(c.req.query());
+  
+  // Validate conversation exists and user has access
+  const conversationMeta = await c.env.MESSAGES_KV.get(`conversation_meta:${conversationId}`);
+  if (!conversationMeta) {
+    throw new NotFoundError('Conversation not found');
+  }
+  
+  const meta = JSON.parse(conversationMeta);
+  if (userRole !== 'admin' && !meta.participants.includes(userId)) {
+    throw new AuthorizationError('Access denied');
+  }
+  
+  // Get all messages in conversation
+  const messagesList = await c.env.MESSAGES_KV.list({
+    prefix: `conversation:${conversationId}:`,
+    limit: 1000
+  });
+  
+  const messages = [];
+  
+  for (const key of messagesList.keys) {
+    const messageData = await c.env.MESSAGES_KV.get(key.name);
+    if (messageData) {
+      const message = JSON.parse(messageData);
+      // Don't show deleted messages unless user is admin
+      if (message.status !== 'deleted' || userRole === 'admin') {
+        messages.push(message);
+      }
+    }
+  }
+  
+  // Sort by creation date (oldest first for conversation flow)
+  messages.sort((a, b) => 
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+  
+  // Paginate
+  const startIndex = (page - 1) * limit;
+  const paginatedMessages = messages.slice(startIndex, startIndex + limit);
+  
+  return c.json({
+    success: true,
+    data: paginatedMessages,
+    pagination: {
+      page,
+      limit,
+      total: messages.length,
+      totalPages: Math.ceil(messages.length / limit)
+    }
+  });
+});
+
 // Get message by ID
 messages.get('/:id', requireAuth, async (c) => {
   const messageId = c.req.param('id');
@@ -266,7 +324,97 @@ messages.get('/', requireAuth, async (c) => {
   });
 });
 
-// Get user's conversations
+// Get user's conversations (public endpoint for specific user)
+messages.get('/users/:userId/conversations', requireAuth, async (c) => {
+  const targetUserId = c.req.param('userId');
+  const currentUserId = c.get('userId');
+  const userRole = c.get('userRole');
+  
+  // Check authorization - users can only see their own conversations, admins can see any
+  if (userRole !== 'admin' && currentUserId !== targetUserId) {
+    throw new AuthorizationError('Access denied');
+  }
+  
+  const { page, limit } = validateQueryParams(c.req.query());
+  
+  // Get all conversation metadata where user is a participant
+  const conversationsList = await c.env.MESSAGES_KV.list({
+    prefix: 'conversation_meta:',
+    limit: 1000
+  });
+  
+  const conversations = [];
+  
+  for (const key of conversationsList.keys) {
+    const conversationData = await c.env.MESSAGES_KV.get(key.name);
+    if (conversationData) {
+      const conversation = JSON.parse(conversationData);
+      
+      // Check if target user is a participant
+      if (conversation.participants.includes(targetUserId)) {
+        // Get other participant info
+        const otherParticipantId = conversation.participants?.find((id: string) => id !== targetUserId);
+        let otherParticipant = null;
+        
+        if (otherParticipantId) {
+          // Try to get as user first
+          let userData = await c.env.USERS_KV.get(`user:${otherParticipantId}`);
+          if (userData) {
+            const user = JSON.parse(userData);
+            otherParticipant = {
+              id: user.id,
+              name: user.fullName,
+              role: 'user',
+              avatar: user.profilePicture
+            };
+          } else {
+            // Try as practitioner
+            userData = await c.env.PRACTITIONERS_KV.get(`practitioner:${otherParticipantId}`);
+            if (userData) {
+              const practitioner = JSON.parse(userData);
+              otherParticipant = {
+                id: practitioner.id,
+                name: practitioner.fullName,
+                role: 'practitioner',
+                avatar: practitioner.profilePicture
+              };
+            }
+          }
+        }
+        
+        if (otherParticipant) {
+          conversations.push({
+             ...conversation,
+             otherParticipant,
+             unreadCount: conversation.unreadCount?.[targetUserId] || 0
+           });
+        }
+      }
+    }
+  }
+  
+  // Sort by last message date (newest first)
+  conversations.sort((a, b) => 
+    new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  );
+  
+  // Paginate
+  const startIndex = (page - 1) * limit;
+  const paginatedConversations = conversations.slice(startIndex, startIndex + limit);
+  
+  return c.json({
+    success: true,
+    data: paginatedConversations,
+    pagination: {
+      page,
+      limit,
+      total: conversations.length,
+      totalPages: Math.ceil(conversations.length / limit)
+    }
+  });
+});
+
+// Get user's conversations (authenticated user's own conversations)
 messages.get('/conversations', requireAuth, async (c) => {
   const userId = c.get('userId');
   const { page, limit } = validateQueryParams(c.req.query());
@@ -287,7 +435,7 @@ messages.get('/conversations', requireAuth, async (c) => {
       // Check if user is a participant
       if (conversation.participants.includes(userId)) {
         // Get the other participant's details
-        const otherParticipantId = conversation.participants.find((id: string) => id !== userId);
+        const otherParticipantId = conversation.participants?.find((id: string) => id !== userId);
         
         let otherParticipant;
         // Try to get from users first, then practitioners
@@ -317,7 +465,7 @@ messages.get('/conversations', requireAuth, async (c) => {
           conversations.push({
             ...conversation,
             otherParticipant,
-            unreadCount: conversation.unreadCount[userId] || 0
+            unreadCount: conversation.unreadCount?.[userId] || 0
           });
         }
       }
@@ -392,7 +540,9 @@ messages.put('/conversations/:conversationId/read', requireAuth, async (c) => {
   }
   
   // Update conversation unread count
-  meta.unreadCount[userId] = 0;
+  if (userId) {
+    meta.unreadCount[userId] = 0;
+  }
   updatePromises.push(
     c.env.MESSAGES_KV.put(`conversation_meta:${conversationId}`, JSON.stringify(meta))
   );

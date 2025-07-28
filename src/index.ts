@@ -17,7 +17,7 @@ import analyticsRoutes from './routes/analytics';
 import categoriesRoutes from './routes/categories';
 import { apiInfoRoutes } from './routes/api-info';
 import productsRoutes from './routes/products';
-import adminRoutes from './routes/admin';
+import adminRoutes from './routes/admin/index';
 import { bootstrap } from './routes/bootstrap';
 
 // Import middleware
@@ -83,6 +83,7 @@ app.get('/', (c) => {
 app.get('/health', (c) => {
   return c.json({
     status: 'healthy',
+    message: 'API is running smoothly',
     timestamp: new Date().toISOString(),
     version: c.env.API_VERSION || '1.0.0',
     environment: c.env.ENVIRONMENT || 'development'
@@ -92,6 +93,7 @@ app.get('/health', (c) => {
 app.get('/api/v1/health', (c) => {
   return c.json({
     status: 'healthy',
+    message: 'API is running smoothly',
     timestamp: new Date().toISOString(),
     version: c.env.API_VERSION || '1.0.0',
     environment: c.env.ENVIRONMENT || 'development'
